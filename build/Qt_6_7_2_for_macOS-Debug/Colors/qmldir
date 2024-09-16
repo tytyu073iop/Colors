@@ -1,5 +1,0 @@
-module Colors
-typeinfo appColors.qmltypes
-prefer :/qt/qml/Colors/
-Main 1.0 Main.qml
-
