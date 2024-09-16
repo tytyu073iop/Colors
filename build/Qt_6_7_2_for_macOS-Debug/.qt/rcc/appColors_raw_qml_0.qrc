@@ -1,0 +1,6 @@
+<RCC>
+  <qresource prefix="/qt/qml/Colors/">
+    <file alias="Main.qml">/Users/illiabiruk/Documents/work/PCG/Colors/Main.qml</file>
+  </qresource>
+</RCC>
+

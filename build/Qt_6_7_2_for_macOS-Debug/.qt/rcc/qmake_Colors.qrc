@@ -1,0 +1,6 @@
+<RCC>
+  <qresource prefix="/qt/qml/Colors">
+    <file alias="qmldir">/Users/illiabiruk/Documents/work/PCG/Colors/build/Qt_6_7_2_for_macOS-Debug/Colors/qmldir</file>
+  </qresource>
+</RCC>
+
