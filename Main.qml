@@ -1,6 +1,7 @@
 import QtQuick
 import QtQuick.Layouts
 import QtQuick.Controls
+import QtQuick.Dialogs
 
 Window {
     width: 640
@@ -14,7 +15,6 @@ Window {
         width: parent.width
         height: parent.height / 3
     }
-
     component SWT: ColumnLayout {
         property alias text: label.text
         property alias from: slider.from
@@ -22,6 +22,7 @@ Window {
         property alias step: slider.stepSize
         property alias value: slider.value
         property bool active: slider.pressed || field.activeFocus
+        property alias validator: field.validator
         Text {
             id: label
             text: qsTr("")
@@ -37,6 +38,21 @@ Window {
                 onTextChanged: {
                     slider.value = text
                 }
+                // onAcceptableInputChanged: {
+                //     if (!acceptableInput) {
+                //         warning.visible = true
+                //     } else {
+                //         warning.visible = false
+                //     }
+                // }
+            }
+            Image {
+                id: warning
+                // TODO: fix height
+                source: "warning.svg"
+                width: 20
+                height: 20
+                visible: false
             }
         }
     }
@@ -64,54 +80,32 @@ Window {
                     key.value = key.value * 100
                 }
             }
-
-            SWT {
+            component CMYK: SWT {
+                from: 0
+                to: 100
+                // validator: IntValidator{bottom: 0; top: 100;}
+                onValueChanged: {
+                    if (!this.active) {
+                        return;
+                    }
+                    cmyk.changedCYMK(cyan.value, yellow.value, magenta.value, key.value)
+                }
+            }
+            CMYK {
                 id: cyan
                 text: "cyan"
-                from: 0
-                to: 100
-                onValueChanged: {
-                    if (!cyan.active) {
-                        return;
-                    }
-                    cmyk.changedCYMK(cyan.value, yellow.value, magenta.value, key.value)
-                }
             }
-            SWT {
+            CMYK {
                 id: magenta
                 text: "magenta"
-                from: 0
-                to: 100
-                onValueChanged: {
-                    if (!magenta.active) {
-                        return;
-                    }
-                    cmyk.changedCYMK(cyan.value, yellow.value, magenta.value, key.value)
-                }
             }
-            SWT {
+            CMYK {
                 id: yellow
                 text: "yellow"
-                from: 0
-                to: 100
-                onValueChanged: {
-                    if (!yellow.active) {
-                        return;
-                    }
-                    cmyk.changedCYMK(cyan.value, yellow.value, magenta.value, key.value)
-                }
             }
-            SWT {
+            CMYK {
                 id: key
                 text: "key"
-                from: 0
-                to: 100
-                onValueChanged: {
-                    if (!key.active) {
-                        return;
-                    }
-                    cmyk.changedCYMK(cyan.value, yellow.value, magenta.value, key.value)
-                }
             }
         }
         ColumnLayout {
@@ -141,39 +135,27 @@ Window {
                     z.value = arr[2]
                 }
             }
+            component XYZ: SWT {
+                from: 0
+                to: 1
+                step: 0.001
+                onValueChanged: {
+                    if (!this.active) { return; }
+                    xyz.waweChanged(x.value, y.value, z.value)
+                }
+            }
             signal waweChanged(x: real, y:real, z:real)
-            SWT {
+            XYZ {
                 id: x
                 text: "X"
-                from: 0
-                to: 1
-                step: 0.001
-                onValueChanged: {
-                    if (!x.active) { return; }
-                    xyz.waweChanged(x.value, y.value, z.value)
-                }
             }
-            SWT {
+            XYZ {
                 id: y
                 text: "Y"
-                from: 0
-                to: 1
-                step: 0.001
-                onValueChanged: {
-                    if (!y.active) { return; }
-                    xyz.waweChanged(x.value, y.value, z.value)
-                }
             }
-            SWT {
+            XYZ {
                 id: z
                 text: "Z"
-                from: 0
-                to: 1
-                step: 0.001
-                onValueChanged: {
-                    if (!z.active) { return; }
-                    xyz.waweChanged(x.value, y.value, z.value)
-                }
             }
         }
         ColumnLayout {
@@ -212,12 +194,7 @@ Window {
                     b.value = arr[2]
                 }
             }
-
-            signal changed(r: real, g: real, b: real)
-            signal waweChanged(r: real, g: real, b: real)
-            SWT {
-                id: r
-                text: "Red"
+            component RGB: SWT {
                 from: 0
                 to: 255
                 onValueChanged: {
@@ -227,28 +204,20 @@ Window {
                     box.color = "#" + rightHex(r.value) + rightHex(g.value) + rightHex(b.value)
                 }
             }
-            SWT {
+
+            signal changed(r: real, g: real, b: real)
+            signal waweChanged(r: real, g: real, b: real)
+            RGB {
+                id: r
+                text: "Red"
+            }
+            RGB {
                 id: g
                 text: "Green"
-                from: 0
-                to: 255
-                onValueChanged: {
-                    console.log("green")
-                    rgb.waweChanged(r.value, g.value, b.value)
-                    rgb.changed(r.value, g.value, b.value)
-                    box.color = "#" + rightHex(r.value) + rightHex(g.value) + rightHex(b.value)
-                }
             }
-            SWT {
+            RGB {
                 id: b
                 text: "Blue"
-                from: 0
-                to: 255
-                onValueChanged: {
-                    rgb.waweChanged(r.value, g.value, b.value)
-                    rgb.changed(r.value, g.value, b.value)
-                    box.color = "#" + rightHex(r.value) + rightHex(g.value) + rightHex(b.value)
-                }
             }
         }
     }
