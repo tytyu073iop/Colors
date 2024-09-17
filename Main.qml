@@ -7,7 +7,7 @@ Window {
     width: 640
     height: 480
     visible: true
-    title: qsTr("Hello World")
+    title: qsTr("Colors")
     color: "#6A7039"
     Rectangle {
         id: box
@@ -38,21 +38,6 @@ Window {
                 onTextChanged: {
                     slider.value = text
                 }
-                // onAcceptableInputChanged: {
-                //     if (!acceptableInput) {
-                //         warning.visible = true
-                //     } else {
-                //         warning.visible = false
-                //     }
-                // }
-            }
-            Image {
-                id: warning
-                // TODO: fix height
-                source: "warning.svg"
-                width: 20
-                height: 20
-                visible: false
             }
         }
     }
@@ -85,6 +70,7 @@ Window {
                 to: 100
                 // validator: IntValidator{bottom: 0; top: 100;}
                 onValueChanged: {
+                    console.log("CYMK: " + cyan.value)
                     if (!this.active) {
                         return;
                     }
@@ -140,7 +126,7 @@ Window {
                 to: 1
                 step: 0.001
                 onValueChanged: {
-                    if (!this.active) { return; }
+                    console.log("xyz: " + x.value)
                     xyz.waweChanged(x.value, y.value, z.value)
                 }
             }
@@ -164,9 +150,10 @@ Window {
                 target: cmyk
                 function onChangedCYMK(c: real, y: real, m: real, k: real) {
                     if (r.active || g.active || b.active) { return; }
-                    r.value = 255*(1 - cyan.value/100)*(1 - key.value/100)
-                    g.value = 255*(1 - magenta.value/100)*(1 - key.value/100)
-                    b.value = 255*(1 - yellow.value/100)*(1 - key.value/100)
+                    r.value = 255*(1 - c.value/100)*(1 - k.value/100)
+                    console.log(r.value)
+                    g.value = 255*(1 - m.value/100)*(1 - k.value/100)
+                    b.value = 255*(1 - y.value/100)*(1 - k.value/100)
                     box.color = "#" + rightHex(r.value) + rightHex(g.value) + rightHex(b.value)
                 }
             }
@@ -188,6 +175,8 @@ Window {
                 }
                 target: xyz
                 function onWaweChanged(x: real, y:real, z:real) {
+                    console.log("changed")
+                    if (r.active || g.active || b.active) { return; }
                     let arr = itog(matrix(x, y, z))
                     r.value = arr[0]
                     g.value = arr[1]
