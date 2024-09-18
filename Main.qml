@@ -1,7 +1,6 @@
 import QtQuick
 import QtQuick.Layouts
 import QtQuick.Controls
-import QtQuick.Dialogs
 
 Window {
     width: 640
@@ -96,6 +95,7 @@ Window {
         }
         ColumnLayout {
             id: xyz
+            signal waweChanged(x: real, y:real, z:real)
             Connections {
                 function f(x) {
                     return x < 0.04045 ? x / 12.92 : Math.pow((x + 0.055) / 1.055, 2.4)
@@ -115,6 +115,7 @@ Window {
                 target: rgb
                 function onWaweChanged(r: real, g: real, b: real) {
                     if (x.active || y.active || z.active) { return; }
+                    console.log(r)
                     let arr = matrix(rGBn(r, g, b))
                     x.value = arr[0]
                     y.value = arr[1]
@@ -125,23 +126,37 @@ Window {
                 from: 0
                 to: 1
                 step: 0.001
-                onValueChanged: {
-                    console.log("xyz: " + x.value)
-                    xyz.waweChanged(x.value, y.value, z.value)
-                }
+                onValueChanged: {}
             }
-            signal waweChanged(x: real, y:real, z:real)
             XYZ {
                 id: x
                 text: "X"
+                onValueChanged: {
+                    if (!this.active) { return; }
+                    console.log("x inside: " + x.value)
+                    console.log("y inside func: " + y.value)
+                    xyz.waweChanged(x.value, y.value, z.value)
+                }
             }
             XYZ {
                 id: y
                 text: "Y"
+                onValueChanged: {
+                    if (!this.active) { return; }
+                    console.log("x inside: " + x.value)
+                    console.log("y inside func: " + y.value)
+                    xyz.waweChanged(x.value, y.value, z.value)
+                }
             }
             XYZ {
                 id: z
                 text: "Z"
+                onValueChanged: {
+                    if (!this.active) { return; }
+                    console.log("x inside: " + x.value)
+                    console.log("y inside func: " + y.value)
+                    xyz.waweChanged(x.value, y.value, z.value)
+                }
             }
         }
         ColumnLayout {
@@ -150,10 +165,11 @@ Window {
                 target: cmyk
                 function onChangedCYMK(c: real, y: real, m: real, k: real) {
                     if (r.active || g.active || b.active) { return; }
-                    r.value = 255*(1 - c.value/100)*(1 - k.value/100)
+                    r.value = 255*(1 - c/100)*(1 - k/100)
+                    console.log(255*(1 - c/100)*(1 - k/100))
                     console.log(r.value)
-                    g.value = 255*(1 - m.value/100)*(1 - k.value/100)
-                    b.value = 255*(1 - y.value/100)*(1 - k.value/100)
+                    g.value = 255*(1 - m/100)*(1 - k/100)
+                    b.value = 255*(1 - y/100)*(1 - k/100)
                     box.color = "#" + rightHex(r.value) + rightHex(g.value) + rightHex(b.value)
                 }
             }
@@ -175,9 +191,10 @@ Window {
                 }
                 target: xyz
                 function onWaweChanged(x: real, y:real, z:real) {
-                    console.log("changed")
+                    console.log("x: " + x)
                     if (r.active || g.active || b.active) { return; }
                     let arr = itog(matrix(x, y, z))
+                    console.log("arr: " + arr)
                     r.value = arr[0]
                     g.value = arr[1]
                     b.value = arr[2]
@@ -199,6 +216,9 @@ Window {
             RGB {
                 id: r
                 text: "Red"
+                onValueChanged: {
+                    console.log(r.value)
+                }
             }
             RGB {
                 id: g
