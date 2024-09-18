@@ -14,6 +14,76 @@ Window {
         width: parent.width
         height: parent.height / 3
     }
+    Window {
+        id: color_picker
+        title: "Pick Color"
+        visible: false
+        property int size: 20
+        height: size
+        width: size * 14
+        component CR: Rectangle {
+            required property var arr
+            width: color_picker.size
+            height: color_picker.size
+            color: "#" + rightHex(arr[0]) + rightHex(arr[1]) + rightHex(arr[2])
+            MouseArea {
+            anchors.fill: parent
+                onClicked: {
+                    console.log("Rectangle clicked!")
+                     // Change color on click
+                    r.value = arr[0]
+                    g.value = arr[1]
+                    b.value = arr[2]
+                }
+            }
+        }
+        RowLayout {
+            CR {
+                arr: [255, 0, 0]; /* red */
+            }
+
+            CR {
+                arr: [0, 255, 0]; /* green */
+            }
+
+            CR {
+                arr: [0, 0, 255]; /* blue */
+            }
+
+            CR {
+                arr: [255, 255, 0]; /* yellow */
+            }
+
+            CR {
+                arr: [255, 165, 0]; /* orange */
+            }
+
+            CR {
+                arr: [128, 0, 128]; /* purple */
+            }
+
+            CR {
+                arr: [255, 192, 203]; /* pink */
+            }
+
+            CR {
+                arr: [165, 42, 42]; /* brown */
+            }
+
+            CR {
+                arr: [128, 128, 128]; /* gray */
+            }
+
+            CR {
+                arr: [0, 128, 128]; /* teal */
+            }
+
+            CR {
+                arr: [0, 0, 128]; /* navy */
+            }
+        }
+    }
+
     component SWT: ColumnLayout {
         property alias text: label.text
         property alias from: slider.from
@@ -91,6 +161,12 @@ Window {
             CMYK {
                 id: key
                 text: "key"
+            }
+            Button {
+                text: "Select Color"
+                onClicked: {
+                    color_picker.visible = true
+                }
             }
         }
         ColumnLayout {
