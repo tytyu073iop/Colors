@@ -6,13 +6,82 @@ Window {
     width: 640
     height: 480
     visible: true
-    title: qsTr("Hello World")
+    title: qsTr("Colors")
     color: "#6A7039"
     Rectangle {
         id: box
         color: "#000000"
         width: parent.width
         height: parent.height / 3
+    }
+    Window {
+        id: color_picker
+        title: "Pick Color"
+        visible: false
+        property int size: 20
+        height: size
+        width: size * 14
+        component CR: Rectangle {
+            required property var arr
+            width: color_picker.size
+            height: color_picker.size
+            color: "#" + rightHex(arr[0]) + rightHex(arr[1]) + rightHex(arr[2])
+            MouseArea {
+            anchors.fill: parent
+                onClicked: {
+                    console.log("Rectangle clicked!")
+                     // Change color on click
+                    r.value = arr[0]
+                    g.value = arr[1]
+                    b.value = arr[2]
+                }
+            }
+        }
+        RowLayout {
+            CR {
+                arr: [255, 0, 0]; /* red */
+            }
+
+            CR {
+                arr: [0, 255, 0]; /* green */
+            }
+
+            CR {
+                arr: [0, 0, 255]; /* blue */
+            }
+
+            CR {
+                arr: [255, 255, 0]; /* yellow */
+            }
+
+            CR {
+                arr: [255, 165, 0]; /* orange */
+            }
+
+            CR {
+                arr: [128, 0, 128]; /* purple */
+            }
+
+            CR {
+                arr: [255, 192, 203]; /* pink */
+            }
+
+            CR {
+                arr: [165, 42, 42]; /* brown */
+            }
+
+            CR {
+                arr: [128, 128, 128]; /* gray */
+            }
+
+            CR {
+                arr: [0, 128, 128]; /* teal */
+            }
+
+            CR {
+                arr: [0, 0, 128]; /* navy */
+            }
+        }
     }
 
     component SWT: ColumnLayout {
@@ -22,6 +91,7 @@ Window {
         property alias step: slider.stepSize
         property alias value: slider.value
         property bool active: slider.pressed || field.activeFocus
+        property alias validator: field.validator
         Text {
             id: label
             text: qsTr("")
@@ -64,58 +134,44 @@ Window {
                     key.value = key.value * 100
                 }
             }
-
-            SWT {
+            component CMYK: SWT {
+                from: 0
+                to: 100
+                // validator: IntValidator{bottom: 0; top: 100;}
+                onValueChanged: {
+                    console.log("CYMK: " + cyan.value)
+                    if (!this.active) {
+                        return;
+                    }
+                    cmyk.changedCYMK(cyan.value, yellow.value, magenta.value, key.value)
+                }
+            }
+            CMYK {
                 id: cyan
                 text: "cyan"
-                from: 0
-                to: 100
-                onValueChanged: {
-                    if (!cyan.active) {
-                        return;
-                    }
-                    cmyk.changedCYMK(cyan.value, yellow.value, magenta.value, key.value)
-                }
             }
-            SWT {
+            CMYK {
                 id: magenta
                 text: "magenta"
-                from: 0
-                to: 100
-                onValueChanged: {
-                    if (!magenta.active) {
-                        return;
-                    }
-                    cmyk.changedCYMK(cyan.value, yellow.value, magenta.value, key.value)
-                }
             }
-            SWT {
+            CMYK {
                 id: yellow
                 text: "yellow"
-                from: 0
-                to: 100
-                onValueChanged: {
-                    if (!yellow.active) {
-                        return;
-                    }
-                    cmyk.changedCYMK(cyan.value, yellow.value, magenta.value, key.value)
-                }
             }
-            SWT {
+            CMYK {
                 id: key
                 text: "key"
-                from: 0
-                to: 100
-                onValueChanged: {
-                    if (!key.active) {
-                        return;
-                    }
-                    cmyk.changedCYMK(cyan.value, yellow.value, magenta.value, key.value)
+            }
+            Button {
+                text: "Select Color"
+                onClicked: {
+                    color_picker.visible = true
                 }
             }
         }
         ColumnLayout {
             id: xyz
+            signal waweChanged(x: real, y:real, z:real)
             Connections {
                 function f(x) {
                     return x < 0.04045 ? x / 12.92 : Math.pow((x + 0.055) / 1.055, 2.4)
@@ -135,43 +191,46 @@ Window {
                 target: rgb
                 function onWaweChanged(r: real, g: real, b: real) {
                     if (x.active || y.active || z.active) { return; }
+                    console.log(r)
                     let arr = matrix(rGBn(r, g, b))
                     x.value = arr[0]
                     y.value = arr[1]
                     z.value = arr[2]
                 }
             }
-            signal waweChanged(x: real, y:real, z:real)
-            SWT {
+            component XYZ: SWT {
+                from: 0
+                to: 1
+                step: 0.001
+                onValueChanged: {}
+            }
+            XYZ {
                 id: x
                 text: "X"
-                from: 0
-                to: 1
-                step: 0.001
                 onValueChanged: {
-                    if (!x.active) { return; }
+                    if (!this.active) { return; }
+                    console.log("x inside: " + x.value)
+                    console.log("y inside func: " + y.value)
                     xyz.waweChanged(x.value, y.value, z.value)
                 }
             }
-            SWT {
+            XYZ {
                 id: y
                 text: "Y"
-                from: 0
-                to: 1
-                step: 0.001
                 onValueChanged: {
-                    if (!y.active) { return; }
+                    if (!this.active) { return; }
+                    console.log("x inside: " + x.value)
+                    console.log("y inside func: " + y.value)
                     xyz.waweChanged(x.value, y.value, z.value)
                 }
             }
-            SWT {
+            XYZ {
                 id: z
                 text: "Z"
-                from: 0
-                to: 1
-                step: 0.001
                 onValueChanged: {
-                    if (!z.active) { return; }
+                    if (!this.active) { return; }
+                    console.log("x inside: " + x.value)
+                    console.log("y inside func: " + y.value)
                     xyz.waweChanged(x.value, y.value, z.value)
                 }
             }
@@ -182,9 +241,11 @@ Window {
                 target: cmyk
                 function onChangedCYMK(c: real, y: real, m: real, k: real) {
                     if (r.active || g.active || b.active) { return; }
-                    r.value = 255*(1 - cyan.value/100)*(1 - key.value/100)
-                    g.value = 255*(1 - magenta.value/100)*(1 - key.value/100)
-                    b.value = 255*(1 - yellow.value/100)*(1 - key.value/100)
+                    r.value = 255*(1 - c/100)*(1 - k/100)
+                    console.log(255*(1 - c/100)*(1 - k/100))
+                    console.log(r.value)
+                    g.value = 255*(1 - m/100)*(1 - k/100)
+                    b.value = 255*(1 - y/100)*(1 - k/100)
                     box.color = "#" + rightHex(r.value) + rightHex(g.value) + rightHex(b.value)
                 }
             }
@@ -206,18 +267,16 @@ Window {
                 }
                 target: xyz
                 function onWaweChanged(x: real, y:real, z:real) {
+                    console.log("x: " + x)
+                    if (r.active || g.active || b.active) { return; }
                     let arr = itog(matrix(x, y, z))
+                    console.log("arr: " + arr)
                     r.value = arr[0]
                     g.value = arr[1]
                     b.value = arr[2]
                 }
             }
-
-            signal changed(r: real, g: real, b: real)
-            signal waweChanged(r: real, g: real, b: real)
-            SWT {
-                id: r
-                text: "Red"
+            component RGB: SWT {
                 from: 0
                 to: 255
                 onValueChanged: {
@@ -227,28 +286,23 @@ Window {
                     box.color = "#" + rightHex(r.value) + rightHex(g.value) + rightHex(b.value)
                 }
             }
-            SWT {
-                id: g
-                text: "Green"
-                from: 0
-                to: 255
+
+            signal changed(r: real, g: real, b: real)
+            signal waweChanged(r: real, g: real, b: real)
+            RGB {
+                id: r
+                text: "Red"
                 onValueChanged: {
-                    console.log("green")
-                    rgb.waweChanged(r.value, g.value, b.value)
-                    rgb.changed(r.value, g.value, b.value)
-                    box.color = "#" + rightHex(r.value) + rightHex(g.value) + rightHex(b.value)
+                    console.log(r.value)
                 }
             }
-            SWT {
+            RGB {
+                id: g
+                text: "Green"
+            }
+            RGB {
                 id: b
                 text: "Blue"
-                from: 0
-                to: 255
-                onValueChanged: {
-                    rgb.waweChanged(r.value, g.value, b.value)
-                    rgb.changed(r.value, g.value, b.value)
-                    box.color = "#" + rightHex(r.value) + rightHex(g.value) + rightHex(b.value)
-                }
             }
         }
     }
